@@ -62,20 +62,20 @@ func (lr *LogicRunner) UpsertExecution(ref Ref) *ExecutionState {
 
 // refreshCaseBind lock CaseBind data, copy it, clean original, unlock original, return copy
 func (lr *LogicRunner) refreshCaseBind() map[Ref][]core.CaseRecord {
-	lr.caseBindsMutex.Lock()
-	defer lr.caseBindsMutex.Unlock()
+	lr.caseBindsStorageMutex.Lock()
+	defer lr.caseBindsStorageMutex.Unlock()
 
-	oldObjectsRecords := lr.caseBinds.Records
+	oldObjectsRecords := lr.caseBindsStorage.Records
 
-	lr.caseBinds = core.CaseBind{Records: make(map[Ref][]core.CaseRecord)}
+	lr.caseBindsStorage = core.CaseBind{Records: make(map[Ref][]core.CaseRecord)}
 
 	return oldObjectsRecords
 }
 
 func (lr *LogicRunner) addObjectCaseRecord(ref Ref, cr core.CaseRecord) {
-	lr.caseBindsMutex.Lock()
-	lr.caseBinds.Records[ref] = append(lr.caseBinds.Records[ref], cr)
-	lr.caseBindsMutex.Unlock()
+	lr.caseBindsStorageMutex.Lock()
+	lr.caseBindsStorage.Records[ref] = append(lr.caseBindsStorage.Records[ref], cr)
+	lr.caseBindsStorageMutex.Unlock()
 }
 
 func (lr *LogicRunner) nextValidationStep(ref Ref) (*core.CaseRecord, int) {

@@ -156,10 +156,10 @@ func ValidateAllResults(t testing.TB, ctx context.Context, lr core.LogicRunner, 
 		failmap[r] = struct{}{}
 	}
 	rlr := lr.(*LogicRunner)
-	rlr.caseBindsMutex.Lock()
-	rlrcbr := rlr.caseBinds.Records
-	rlr.caseBinds.Records = make(map[core.RecordRef][]core.CaseRecord)
-	rlr.caseBindsMutex.Unlock()
+	rlr.caseBindsStorageMutex.Lock()
+	rlrcbr := rlr.caseBindsStorage.Records
+	rlr.caseBindsStorage.Records = make(map[core.RecordRef][]core.CaseRecord)
+	rlr.caseBindsStorageMutex.Unlock()
 	for ref, cr := range rlrcbr {
 		log.Debugf("TEST validating: %s", ref)
 		vstep, err := lr.Validate(ref, *rlr.pulse(ctx), cr)

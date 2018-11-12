@@ -84,9 +84,9 @@ type LogicRunner struct {
 	execution      map[Ref]*ExecutionState // if object exists, we are validating or executing it right now
 	executionMutex sync.Mutex
 
-	// TODO move caseBinds to context
-	caseBinds      core.CaseBind
-	caseBindsMutex sync.Mutex
+	// TODO move caseBindsStorage to context
+	caseBindsStorage      core.CaseBind
+	caseBindsStorageMutex sync.Mutex
 
 	caseBindReplays      map[Ref]core.CaseBindReplay
 	caseBindReplaysMutex sync.Mutex
@@ -101,12 +101,12 @@ func NewLogicRunner(cfg *configuration.LogicRunner) (*LogicRunner, error) {
 		return nil, errors.New("LogicRunner have nil configuration")
 	}
 	res := LogicRunner{
-		ArtifactManager: nil,
-		Ledger:          nil,
-		Cfg:             cfg,
-		execution:       make(map[Ref]*ExecutionState),
-		caseBinds:       core.CaseBind{Records: make(map[Ref][]core.CaseRecord)},
-		caseBindReplays: make(map[Ref]core.CaseBindReplay),
+		ArtifactManager:  nil,
+		Ledger:           nil,
+		Cfg:              cfg,
+		execution:        make(map[Ref]*ExecutionState),
+		caseBindsStorage: core.CaseBind{Records: make(map[Ref][]core.CaseRecord)},
+		caseBindReplays:  make(map[Ref]core.CaseBindReplay),
 	}
 	return &res, nil
 }
@@ -521,13 +521,13 @@ func (lr *LogicRunner) OnPulse(ctx context.Context, pulse core.Pulse) error {
 			&message.ValidateCaseBind{RecordRef: ref, CaseRecords: records, Pulse: pulse},
 		)
 		if err != nil {
-			panic("Error while sending caseBinds data to validators: " + err.Error())
+			panic("Error while sending caseBindsStorage data to validators: " + err.Error())
 		}
 
 		results := message.ExecutorResults{RecordRef: ref, CaseRecords: records}
 		_, err = lr.MessageBus.Send(ctx, &results)
 		if err != nil {
-			return errors.New("error while sending caseBinds data to new executor")
+			return errors.New("error while sending caseBindsStorage data to new executor")
 		}
 
 		// release unprocessed request
