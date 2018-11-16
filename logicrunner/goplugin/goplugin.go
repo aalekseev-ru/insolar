@@ -169,6 +169,6 @@ func (gp *GoPlugin) CallConstructor(
 		Arguments: args,
 	}
 
-	err := gp.CallRPC(ctx, "RPC.CallMethod", req, &res)
+	err := gp.CallRPC(ctx, "RPC.CallConstructor", req, &res)
 	return res.Ret, err
 }
